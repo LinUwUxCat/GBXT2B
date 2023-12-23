@@ -1,6 +1,7 @@
 from FileRW import FileRW
 from ChunkReader import readChunk
 import sys
+import os
 
 filepath = sys.argv[1]
 rw = FileRW(filepath)
@@ -41,4 +42,4 @@ c = rw.readNextString()
 while (not readChunk(c, rw)):
     c = rw.readNextString()
 
-rw.toFile("B_"+filepath)
+rw.toFile("B_"+os.path.basename(filepath))
