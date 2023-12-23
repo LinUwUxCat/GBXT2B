@@ -193,6 +193,11 @@ def readChunk(chunkId:str,rw) -> bool:
             rw.Node()
             rw.Int32()
 
+        #CSystemConfig
+        case "B005008":
+            rw.Skippable()
+            rw.String()
+            rw.EndSkippable()
 
         #Fallbacks
         case "FACADE01":
@@ -201,4 +206,6 @@ def readChunk(chunkId:str,rw) -> bool:
         
         case _:
             raise NotImplementedError("Chunk " + chunkId + " is not implemented. Please open an issue.")
+    
+    print("Read chunk "+ chunkId.upper())
     return False

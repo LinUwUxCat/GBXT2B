@@ -7,6 +7,7 @@ class FileRW:
     out = bytearray()
     lookbackStringEncountered = False
     readNodes = dict()
+    skippedSizePos = -1
 
     def __init__(self, filename):
         self.file = open(filename, "rb")
@@ -123,6 +124,19 @@ class FileRW:
         numSubFolders = self.Int32()
         for _ in range(numSubFolders):
             self.Folder()
+
+
+    def Skippable(self):
+        if (self.skippedSizePos != -1): raise LookupError("Skippable called but EndSkippable wasn't")
+        skip = self.Int32()
+        if (skip != 1397442896): raise ValueError("Chunk is not actually skippable!") # 1397442896 = SKIP
+        self.skippedSizePos = len(self.out)
+        self.Int32()
+
+    def EndSkippable(self):
+        if (self.skippedSizePos ==- 1): raise LookupError("EndSkippable called but Skippable wasn't")
+        self.out[self.skippedSizePos:self.skippedSizePos+4] = (len(self.out)-self.skippedSizePos).to_bytes(4, "little")
+        self.skippedSizePos = -1
 
     def toFile(self, filename):
         with open(filename, "wb") as outFile:
