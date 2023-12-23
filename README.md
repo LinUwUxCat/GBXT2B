@@ -5,8 +5,9 @@ Unfortunately, due to very inconsistent formatting by Nadeo when making text GBX
 ### Usage
 Run `python3 main.py Path/To/Your/File.Gbx`. The resulting file will be at Path/To/Your/B_File.Gbx ( <ins>**/!\\**</ins> It will overwrite any existing file)
 ### Known working files
-Not every format is fully implemented, so it's hard to provide a list.\
+Not every format is fully implemented or correctly implemented, so it's hard to provide a list.\
 Here is a small list of files I could get to work:
 |      File Name     |        Notes        |
 |--------------------|---------------------|
 | MainBody.Solid.Gbx | From TMS Opel Demo  |
+| Default.ShaderSprite.Gbx | From TMN - GBX v3 |

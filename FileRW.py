@@ -117,6 +117,12 @@ class FileRW:
             l = self.readNextString()
 
         self.readNodes[nodeNum] = self.out[start:]
+    
+    def Folder(self):
+        self.String()
+        numSubFolders = self.Int32()
+        for _ in range(numSubFolders):
+            self.Folder()
 
     def toFile(self, filename):
         with open(filename, "wb") as outFile:

@@ -144,6 +144,14 @@ def readChunk(chunkId:str,rw) -> bool:
 
 
         #CPlugShader
+        case "9002005":
+            rw.rw(8) # unsure what this is
+        case "9002007":
+            rw.Node() # This seems to use the ref table, so with my implementation of node this is probably incorrect
+            l = rw.Int32()
+            for _ in range(l):
+                rw.Node()
+            rw.Node()
         case "900200E":
             rw.Node()
             a1s = rw.Int32()
@@ -159,15 +167,31 @@ def readChunk(chunkId:str,rw) -> bool:
 
         
         #CPlugShaderGeneric
-        case "9004003":
+        case "9004001":
             rw.rw(22*4) #Supposed to be an array of 22 floats but they're already binary so
+        case "9004003":
+            rw.rw(22*4) #I love double implementations
         
 
         #CPlugShaderApply
+        case "9026000": #????
+            rw.Int32()
+            rw.Int32()
+            rw.Int32()
         case "9063002":
             rw.rw(4)
             rw.Int32()
             for i in range(5): rw.Int32() # fixed array size
+
+        
+        #CPlugShaderPass
+        case "9067002": # This is most definitely incorrect but this chunk is not documented nor implemented anywhere
+            rw.Int32()
+            rw.Int32()
+            rw.Int32()
+            rw.Int32()
+            rw.Node()
+            rw.Int32()
 
 
         #Fallbacks
