@@ -7,7 +7,7 @@ class FileRW:
     out = bytearray()
     lookbackStringEncountered = False
     readNodes = dict()
-    skippedSizePos = -1
+    skippedSizePos = []
 
     def __init__(self, filename):
         self.file = open(filename, "rb")
@@ -127,16 +127,16 @@ class FileRW:
 
 
     def Skippable(self):
-        if (self.skippedSizePos != -1): raise LookupError("Skippable called but EndSkippable wasn't")
+        print("[Skippable] ", end="")
         skip = self.Int32()
         if (skip != 1397442896): raise ValueError("Chunk is not actually skippable!") # 1397442896 = SKIP
-        self.skippedSizePos = len(self.out)
-        self.Int32()
+        self.skippedSizePos.append(len(self.out))
+        self.Int32() # dummy chunk size
 
     def EndSkippable(self):
-        if (self.skippedSizePos ==- 1): raise LookupError("EndSkippable called but Skippable wasn't")
-        self.out[self.skippedSizePos:self.skippedSizePos+4] = (len(self.out)-self.skippedSizePos).to_bytes(4, "little")
-        self.skippedSizePos = -1
+        if (len(self.skippedSizePos) == 0): raise LookupError("EndSkippable called but Skippable wasn't")
+        skippedPos = self.skippedSizePos.pop()
+        self.out[skippedPos:skippedPos+4] = (len(self.out)-skippedPos - 4).to_bytes(4, "little") # -4 because i get the position before writing the dummy chunk size
 
     def toFile(self, filename):
         with open(filename, "wb") as outFile:

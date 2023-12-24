@@ -11,3 +11,4 @@ Here is a small list of files I could get to work:
 |--------------------|---------------------|
 | MainBody.Solid.Gbx | From TMS Opel Demo  |
 | Default.ShaderSprite.Gbx | From TMN - GBX v3 |
+| Default.SystemConfig.Gbx | From TMS or TMN |

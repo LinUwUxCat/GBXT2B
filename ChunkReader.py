@@ -4,6 +4,7 @@ import FileRW
 def readChunk(chunkId:str,rw) -> bool:
 
     rw.write(int("0x0"+chunkId,0).to_bytes(4, 'little'))
+    print("\nReading chunk " + chunkId.upper()+ " ", end="")
     match chunkId.upper():
         # CPlugSolid
         case "9005000":
@@ -198,14 +199,156 @@ def readChunk(chunkId:str,rw) -> bool:
             rw.Skippable()
             rw.String()
             rw.EndSkippable()
+        case "B005009":
+            rw.Skippable()
+            for _ in range(6): rw.String()
+            rw.EndSkippable()
+        case "B00500B":
+            rw.Skippable()
+            for _ in range(4): rw.Int32() # Guessing 
+            rw.EndSkippable()
+        case "B005012":
+            rw.Skippable()
+            for _ in range(3): rw.String()
+            rw.Bool()
+            rw.Int32()
+            rw.EndSkippable()
+        case "B00501D":
+            rw.Skippable()
+            rw.Bool()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B005020":
+            rw.Skippable()
+            rw.Bool()
+            while not readChunk(rw.readNextString(), rw): #Headless node
+                pass
+            rw.EndSkippable()
+        case "B005022":
+            rw.Skippable()
+            rw.Float()
+            rw.Float()
+            rw.Bool()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B005028":
+            rw.Skippable()
+            rw.Bool()
+            rw.Float()
+            rw.Float()
+            for _ in range (3): rw.Int32()
+            rw.Bool()
+            rw.Bool()
+            rw.Int32()
+            rw.EndSkippable()
+        case "B00502B":
+            rw.Skippable()
+            rw.Int32()
+            rw.Bool()
+            rw.Float()
+            rw.EndSkippable()
+        case "B005030":
+            rw.Skippable()
+            rw.Bool()
+            rw.Bool()
+            rw.Int32()
+            for _ in range(4): rw.Bool()
+            rw.String()
+            rw.String()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B005034":
+            rw.Skippable()
+            for _ in range(5): rw.Int32()
+            rw.Bool()
+            rw.Int32()
+            rw.EndSkippable()
+        case "B005035":
+            rw.Skippable()
+            rw.Bool()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B005036":
+            rw.Skippable()
+            rw.Bool()
+            rw.String()
+            rw.String()
+            for _ in range(4): rw.Int32()
+            rw.Bool()
+            rw.String()
+            rw.Int32()
+            rw.Bool()
+            rw.EndSkippable()
+
+        #CSystemConfigDisplay
+        case "B013001":
+            rw.Skippable()
+            for _ in range(6): rw.Int32()
+            rw.Bool()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B013003":
+            rw.Skippable()
+            rw.Bool()
+            rw.Int32()
+            rw.Bool()
+            rw.Int32()
+            rw.Bool()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B013004":
+            rw.Skippable()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B013005":
+            rw.Skippable()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B013008":
+            rw.Skippable()
+            for _ in range(3): rw.Int32()
+            rw.EndSkippable()
+        case "B013009":
+            rw.Skippable()
+            rw.Int32()
+            rw.Int32()
+            rw.Bool()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B01300A":
+            rw.Skippable()
+            rw.Bool()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B01300B":
+            rw.Skippable()
+            rw.Bool()
+            rw.Float()
+            rw.EndSkippable()
+        case "B01300D":
+            rw.Skippable()
+            rw.Int32()
+            rw.Bool()
+            for _ in range(6): rw.Int32()
+            rw.EndSkippable()
+        case "B01300E":
+            rw.Skippable()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B01300F":
+            rw.Skippable()
+            rw.Bool()
+            rw.EndSkippable()
+        case "B013010":
+            rw.Skippable()
+            rw.Float()
+            rw.EndSkippable()
 
         #Fallbacks
         case "FACADE01":
-            #rw.write(int("0xFACADE01",0).to_bytes(4, 'little'))
             return True
         
         case _:
-            raise NotImplementedError("Chunk " + chunkId + " is not implemented. Please open an issue.")
-    
-    print("Read chunk "+ chunkId.upper())
+            raise NotImplementedError("Chunk " + chunkId.upper() + " is not implemented. Please open an issue.")
+
     return False

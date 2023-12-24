@@ -57,4 +57,5 @@ c = rw.readNextString()
 while (not readChunk(c, rw)):
     c = rw.readNextString()
 
+print("\nDone!")
 rw.toFile(os.path.dirname(filepath)+os.path.sep if os.path.dirname(filepath)!="" else "" +"B_"+os.path.basename(filepath))
