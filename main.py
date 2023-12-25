@@ -14,6 +14,7 @@ rw.write(magic)
 # Version check
 version = rw.file.read(2)
 rw.write(version)
+rw.setVersion(int.from_bytes(version, "little"))
 
 # Type check
 fType = rw.file.read(4) if (int.from_bytes(version, byteorder='little') >= 4) else rw.file.read(3)
@@ -58,4 +59,4 @@ while (not readChunk(c, rw)):
     c = rw.readNextString()
 
 print("\nDone!")
-rw.toFile(os.path.dirname(filepath)+os.path.sep if os.path.dirname(filepath)!="" else "" +"B_"+os.path.basename(filepath))
+rw.toFile((os.path.dirname(filepath)+os.path.sep if os.path.dirname(filepath)!="" else "") +"B_"+os.path.basename(filepath))

@@ -10,9 +10,17 @@ def readChunk(chunkId:str,rw) -> bool:
         case "9005000":
             rw.Int32()
         case "9005006":
-            pass
+            for _ in range(6): rw.Float()
+            rw.Mat3()
         case "9005007":
             rw.Bool()
+        case "900500A":
+            rw.Bool()
+            rw.Bool()
+            rw.Int32()
+            rw.Bool()
+            rw.Bool()
+            rw.Node()
         case "900500B":
             for i in range(6): rw.Bool()
             rw.Int32()
@@ -70,6 +78,12 @@ def readChunk(chunkId:str,rw) -> bool:
         case "904F00D":
             rw.LookBackString()
             rw.LookBackString()
+        case "904F00E":
+            rw.Node()
+            rw.Node()
+            rw.Node()
+        case "904F010":
+            rw.rw(4) #? ok
         case "904F011":
             rw.Node()
         case "904F016":
@@ -84,6 +98,14 @@ def readChunk(chunkId:str,rw) -> bool:
         # CPlugVisual
         case "9006001":
             rw.LookBackString()
+        case "9006003":
+            rw.Bool()
+            rw.Bool()
+            rw.Int32()
+            rw.Int32()
+            rw.Int32()
+            rw.DataAndBool()
+            rw.Int32()
         case "9006004":
             rw.Node()
         case "9006005":
@@ -103,14 +125,7 @@ def readChunk(chunkId:str,rw) -> bool:
             rw.Int32()
             rw.Int32()#ARRAY - but always empty?
             rw.Int32()#^^^^^^^^^^^^^^^^^^^^^^^^^
-            raw = rw.readNextData() #Explanation here : These chunks do not have any \r\n after the data so i have to extract the bool manually since True and 
-            b = raw[-4:].decode()
-            if (b=="True"):
-                rw.write(raw[:-4])
-                rw.write(int(bool(b)).to_bytes(4, "little"))
-            else:
-                rw.write(raw[:-5])
-                rw.write(int(bool(raw[-5:].decode())).to_bytes(4, "little"))
+            rw.DataAndBool()
             rw.Int32()#Array but always empty ?
         case "900600B":
             siz = rw.Int32()
@@ -118,16 +133,19 @@ def readChunk(chunkId:str,rw) -> bool:
         
 
         #CPlugVisual3D
+        case "902C001":
+            rw.DataAndInt()
         case "902C002":
             rw.Node()
         case "902C003": #Note : This is the same as 9006008|A with the boolean after the data except here it's an int32. If this is ever >9 i have no idea how to handle it and it's always been 0 in my files anyways
-            raw = rw.readNextData()
-            rw.write(raw[:-1])
-            rw.write(int(raw[-1:].decode()).to_bytes(4, "little"))
+            rw.DataAndInt()
             rw.Int32()
 
 
         #CPlugVisualIndexed
+        case "906A000":
+            lS = rw.Int32()
+            for _ in range(lS): rw.rw(2)
         case "906A001":
             bo = rw.Bool()
             if (bo):
@@ -343,6 +361,30 @@ def readChunk(chunkId:str,rw) -> bool:
             rw.Skippable()
             rw.Float()
             rw.EndSkippable()
+
+
+        #CPlugBitmap
+        case "9011007":
+            rw.Int32()
+            rw.Int32()
+            rw.Bool()
+            rw.Int32()
+            rw.Int32()
+            for _ in range(8): rw.Bool()
+            rw.Int32()
+            rw.Int32()
+
+
+        #CPlugSurface
+        case "900C000":
+            rw.LookBackString()
+        
+
+        #CPlugSurfaceGeom
+        case "900F001":
+            rw.Int32()
+            for _ in range(6): rw.Float()
+
 
         #Fallbacks
         case "FACADE01":

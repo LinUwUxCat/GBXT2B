@@ -4,8 +4,9 @@ from ChunkReader import readChunk
 class FileRW:
 
     file = None
+    version=6
     out = bytearray()
-    lookbackStringEncountered = False
+    lookbackStringVersion = -1
     readNodes = dict()
     skippedSizePos = []
 
@@ -33,6 +34,12 @@ class FileRW:
     def rw(self, n:int):
         self.out += self.file.read(n)
 
+    #useful for some quirks
+    def setVersion(self, ver:int):
+        self.version = ver
+
+    #Convenience methods
+        
     def Int16(self) -> int:
         i16 = int(self.readNextString())
         self.out += i16.to_bytes(2, 'little')
@@ -88,21 +95,48 @@ class FileRW:
         raise NotImplementedError()
     
     def Mat3(self):
-        raise NotImplementedError()
+        for _ in range(9): self.Float()
     
+    #############################
+    # LookBackString reference
+    # v2:
+    #   int32 version
+    #   if version != 4294967295 (0xFFFFFFFF)
+    #       int32 index
+    #       string string
+    #
+    # v3:
+    #   int32 version (only the first time encountering a LookBackString)
+    #   int32 index
+    #   if bits 0-29 of index are 0
+    #       string string
+    #
+    # Note that most of the time everything is decimal but sometimes stuff is stored as hex without 0x prefix for some reason so i double check shit
+    #############################
     def LookBackString(self):
-        if not self.lookbackStringEncountered:
-            self.Int32()
-            self.lookbackStringEncountered = True
+
+        if self.lookbackStringVersion < 3: #version check. Entered only the first time on lbstring v3 and everytime on v2 to check for empty strings
+            possibleVersion = self.readNextString()
+            if (possibleVersion == "4294967295" or possibleVersion.lower() == "ffffffff"): 
+                self.out += (4294967295).to_bytes(4, 'little')
+                return
+            else: 
+                self.lookbackStringVersion = int(possibleVersion)
+                self.out += int(possibleVersion).to_bytes(4, 'little')
+        
         lbIndex = self.readNextString()
-        if (lbIndex == "4294967295" or lbIndex.lower() == "ffffffff"):
+        if (lbIndex=="4294967295" or lbIndex.lower() == "ffffffff"): #for convenience, if string is empty just yeet out. This part specifically seems to be inconsistent with hex or dec
             lbIndex = "4294967295"
             self.out += int(lbIndex).to_bytes(4, 'little')
             return
-        if (lbIndex != "40000000"):
-            raise NotImplementedError("TODO : Implement lookbackstring")
-        self.out += int("0x"+lbIndex,0).to_bytes(4, 'little')
-        self.String()
+        
+        intIndex=int(lbIndex) 
+        if (self.lookbackStringVersion == 3): intIndex=int("0x"+lbIndex, 16) # ???? unsure of this
+        self.out += intIndex.to_bytes(4, 'little')
+
+        if (self.lookbackStringVersion == 2): self.String()
+        elif (self.lookbackStringVersion == 3):
+            if (intIndex & 0x3fffffff == 0): self.String()
 
     def Node(self):
         nodeNum = self.Int32()
@@ -124,7 +158,23 @@ class FileRW:
         numSubFolders = self.Int32()
         for _ in range(numSubFolders):
             self.Folder()
+    
+    def DataAndBool(self):
+        raw = self.readNextData() #Explanation here : These chunks do not have any \r\n after the data so i have to extract the bool manually since True and 
+        b = raw[-4:].decode()
+        if (b=="True"):
+            self.write(raw[:-4])
+            self.write(int(bool(b)).to_bytes(4, "little"))
+        else:
+            self.write(raw[:-5])
+            self.write(int(bool(raw[-5:].decode())).to_bytes(4, "little"))
 
+    def DataAndInt(self):
+        raw = self.readNextData()
+        self.write(raw[:-1])
+        addedInt=int(raw[-1:].decode())
+        if (addedInt>9): raise NotImplementedError("I hate nadeo (pls open an issue ty)")
+        self.write(addedInt.to_bytes(4, "little"))
 
     def Skippable(self):
         print("[Skippable] ", end="")
