@@ -378,8 +378,8 @@ def readChunk(chunkId:str,rw) -> bool:
                 rw.Bool()
                 rw.Int32()
                 rw.Bool()
-                rw.Mat3()
-                rw.Mat3()
+                rw.Mat3() #
+                rw.Mat3() # Might be iso4
 
         #CPlugSurface
         case "900C000":
