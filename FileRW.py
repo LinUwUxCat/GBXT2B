@@ -56,7 +56,7 @@ class FileRW:
         return i64
 
     def Bool(self) -> bool :
-        b = bool(self.readNextString())
+        b = bool(self.readNextString()=="True")
         self.out += int(b).to_bytes(4, "little")
         return b
 
@@ -83,6 +83,9 @@ class FileRW:
         raise NotImplementedError()
     
     def Int3(self):
+        raise NotImplementedError()
+    
+    def Vec4(self):
         raise NotImplementedError()
     
     def Rect(self):
@@ -147,12 +150,27 @@ class FileRW:
         start = len(self.out)-1
         id = self.readNextString()
         self.out += int("0x0"+id,0).to_bytes(4, 'little')
+
+        if (id=="902f000"):#ILOVENADEOCONSISTENCY
+            self.ReadCPlugFileGen() 
+            return
+
         l = self.readNextString()
         while not readChunk(l, self): 
             l = self.readNextString()
 
         self.readNodes[nodeNum] = self.out[start:]
     
+    def ReadCPlugFileGen(self):
+        u01 = self.Int32()
+        if (u01<0):
+            raise NotImplementedError("CPlugFileGen is not fully implemented yet")
+        else:
+            lS1 = self.Int32()
+            for _ in range(lS1): self.rw(4)
+            lS2 = self.Int32()
+            for _ in range(lS2): self.Vec4()
+
     def Folder(self):
         self.String()
         numSubFolders = self.Int32()

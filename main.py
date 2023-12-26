@@ -16,6 +16,8 @@ version = rw.file.read(2)
 rw.write(version)
 rw.setVersion(int.from_bytes(version, "little"))
 
+if (rw.version < 6):
+    print("WARNING : This is a GBX v"+str(rw.version)+", it might not work properly.")
 # Type check
 fType = rw.file.read(4) if (int.from_bytes(version, byteorder='little') >= 4) else rw.file.read(3)
 if (fType.decode()[0]!="T"): raise ValueError("Only Text files are supported.")
@@ -47,11 +49,14 @@ if (externalNodes > 0):
         rw.Folder()
     for _ in range(externalNodes):
         flags = rw.Int32()
+        nd = ""
         if (flags & 4 == 0):
-            rw.String()
+            nd = rw.String()
         else:
-            rw.Int32()
-        rw.Int32()
+            nd = rw.Int32()
+        nodeIndex = rw.Int32()
+        rw.readNodes[nodeIndex] = nd
+        if (int.from_bytes(version, "little") >= 5): rw.Bool()
         if (flags & 4 == 0): rw.Int32()
 
 c = rw.readNextString()

@@ -365,15 +365,21 @@ def readChunk(chunkId:str,rw) -> bool:
 
         #CPlugBitmap
         case "9011007":
+            rw.Node()
             rw.Int32()
-            rw.Int32()
-            rw.Bool()
+            c = rw.Bool()
             rw.Int32()
             rw.Int32()
             for _ in range(8): rw.Bool()
             rw.Int32()
             rw.Int32()
-
+            if not c:
+                rw.Int32()
+                rw.Bool()
+                rw.Int32()
+                rw.Bool()
+                rw.Mat3()
+                rw.Mat3()
 
         #CPlugSurface
         case "900C000":
