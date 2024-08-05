@@ -90,6 +90,9 @@ def readChunk(chunkId:str,rw) -> bool:
             for _ in range(4): rw.Node()
         case "904F017":
             rw.Node()
+        case "904F017":
+            rw.rw(8)
+            rw.Iso4()
         case "904F019":
             rw.rw(4) # Nando forgot to put the int32 as text ig? idk
             rw.Iso4()
